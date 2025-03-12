@@ -107,7 +107,7 @@ $result_logs = $conn->query($sql_logs);
                     echo "<td>" . $row['email'] . "</td>";
                     echo "<td>
                     <a href='?update_id=" . $row['id'] . "'><button class='btn btn-primary'><i class='bi bi-pencil-square'></i></button></a>
-                    <a href='?delete_id=" . $row['id'] . "' onclick='return confirm(\"Você tem certeza que deseja excluir?\")'><button class='btn btn-danger'><i class='bi bi-trash'></i></button></a>
+                    <a href='gera_logs.php?delete_id=" . $row['id'] . "' onclick='return confirm(\"Você tem certeza que deseja excluir?\")'><button class='btn btn-danger'><i class='bi bi-trash'></i></button></a>
                     </td>";
                     echo "</tr>";
                 }
@@ -131,12 +131,12 @@ $result_logs = $conn->query($sql_logs);
     ?>
 
         <h2>Atualizar Cliente</h2>
-        <form method="POST" action="gera_logs.php" style="text-align: center; align-items: center; border: 1px solid #333;">
+        <form method="POST" action="gera_logs.php" style="text-align: center; align-items: center; ">
             <input type="hidden" name="update_id" value="<?php echo $update_id; ?>">
             <label for="nome">Nome:</label>
-            <input type="text" name="nome" value="<?php echo $nome; ?>" required><br>
+            <input type="text" name="nome1" value="<?php echo $nome; ?>" required><br>
             <label for="email">Email:</label>
-            <input type="email" name="email" value="<?php echo $email; ?>" required><br>
+            <input type="email" name="email1" value="<?php echo $email; ?>" required><br>
             <button type="submit">Atualizar</button>
         </form>
     <?php
