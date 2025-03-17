@@ -36,73 +36,58 @@ function registrar_log($acao, $tabela, $dados_antigos, $dados_novos)
     $stmt->close();
 }
 
-/* Exemplo de inserção ou atualização na tabela "clientes"
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Verifique se é uma inserção ou uma atualização
-    if (isset($_POST['id']) && $_POST['id'] != '') {  // Atualização
-        $id = $_POST['id'];
-        $novo_nome = $_POST['novo_nome'];
-        $novo_email = $_POST['novo_email'];
-
-        // Obter dados antigos antes da atualização
-        $stmt = $conn->prepare("SELECT nome, email FROM clientes WHERE id = ?");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $stmt->bind_result($nome_antigo, $email_antigo);
-        $stmt->fetch();
-        $stmt->close();
-
-        // Atualizar dados do cliente
-        $stmt = $conn->prepare("UPDATE clientes SET nome = ?, email = ? WHERE id = ?");
-        $stmt->bind_param('ssi', $novo_nome, $novo_email, $id);
-
-        if ($stmt->execute()) {
-            // Registrar o log de atualização
-            $dados_antigos = "Nome: $nome_antigo, Email: $email_antigo";
-            $dados_novos = "Nome: $novo_nome, Email: $novo_email";
-            registrar_log('UPDATE', 'clientes', $dados_antigos, $dados_novos);
-        } else {
-            echo "Erro na atualização: " . $stmt->error . "<br>";
-        }
-
-        $stmt->close();
-    } 
-}*/
 
 
- // Inserção de novo cliente
- 
-    if (isset($_POST['nome'], $_POST['email'])) {
-        $nome = $_POST['nome'];
-        $email = $_POST['email'];
 
-        // Verificar se o email já existe na tabela "clientes"
-        $stmt = $conn->prepare("SELECT id FROM clientes WHERE email = ?");
-        $stmt->bind_param('s', $email);
-        $stmt->execute();
-        $stmt->store_result();
+// Inserção de novo cliente
 
-        // Se o email já existe, não insira novamente
-        if ($stmt->num_rows > 0) {
-            echo "Erro: O email já está cadastrado.";
-        } else {
-            // Inserir novo cliente
-            $stmt = $conn->prepare("INSERT INTO clientes (nome, email) VALUES (?, ?)");
-            $stmt->bind_param('ss', $nome, $email);
+if (isset($_POST['nome'], $_POST['email'])) {
+    $nome = $_POST['nome'];
+    $email = $_POST['email'];
+    $foto = "";
 
-            if ($stmt->execute()) {
-                // Registrar o log de inserção
-                $dados_novos = "Nome: $nome, Email: $email";
-                registrar_log('INSERT', 'clientes', null, $dados_novos);
+
+    // Verificar se o email já existe na tabela "clientes"
+    $stmt = $conn->prepare("SELECT id FROM clientes WHERE email = ?");
+    $stmt->bind_param('s', $email);
+    $stmt->execute();
+    $stmt->store_result();
+
+    // Se o email já existe, não insira novamente
+    if ($stmt->num_rows > 0) {
+        echo "Erro: O email já está cadastrado.";
+    } else {
+
+        // Verifica se um arquivo foi enviado
+        if (!empty($_FILES['imagem']['name'])) {
+            $pasta = "uploads/"; // Pasta para armazenar imagens
+            $foto = $pasta . basename($_FILES["imagem"]["name"]);
+
+            // Move o arquivo para a pasta
+            if (move_uploaded_file($_FILES["imagem"]["tmp_name"], $foto)) {
+                echo "Imagem salva com sucesso!";
             } else {
-                echo "Erro na inserção: " . $stmt->error . "<br>";
+                echo "Erro ao fazer upload da imagem.";
+                exit;
             }
         }
+        // Inserir novo cliente
+        $stmt = $conn->prepare("INSERT INTO clientes (nome, email, foto) VALUES (?, ?, ?)");
+        $stmt->bind_param('sss', $nome, $email, $foto);
 
-        $stmt->close();
+        if ($stmt->execute()) {
+            // Registrar o log de inserção
+            $dados_novos = "Nome: $nome, Email: $email";
+            registrar_log('INSERT', 'clientes', null, $dados_novos);
+        } else {
+            echo "Erro na inserção: " . $stmt->error . "<br>";
+        }
     }
 
-   //Actualização na tabela "clientes"
+    $stmt->close();
+}
+
+//Actualização na tabela "clientes"
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_id'])) {
     $id = $_POST['update_id'];
     $novo_nome = $_POST['nome1'];
@@ -145,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_id'])) {
     $stmt->close();
 }
 
- 
+
 
 
 // Exemplo de exclusão na tabela "clientes"
